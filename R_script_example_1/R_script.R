@@ -70,6 +70,9 @@ print(table(Idents(sc_data)))
 print(paste("Saving PCA for time point", name_of_the_data, "in", name_new_dir))
 save(sc_data, file = paste(name_new_dir_partial, "/PCA_res_", name_of_the_data, ".Robj", sep = ""))
 
+# Make and plot UMAP
+sc_UMAP <- RunUMAP(sc_data, dims = 1:10)
+DimPlot(sc_UMAP, reduction = "umap", label = TRUE, pt.size = 1)
 
 # FIND ALL MARKERS____________________________________________________________________________________________________________
 print(paste("Finding all markers for time point:", name_of_the_data))
@@ -83,6 +86,22 @@ cluster_markers <- FindAllMarkers(sc_data,
 # Save the markers
 print(paste("Saving cluster markers for time point", name_of_the_data, "in", name_new_dir))
 save(cluster_markers, file = paste(name_new_dir_partial, "/cluster_markers_", name_of_the_data, ".Robj", sep = ""))
+
+
+# FIND DIFFERENTIALLY EXPRESSED GENES____________________________________________________________________________________________________________
+de.genes <- function(genes_oi) {
+    print(paste("Finding differentially expressed genes for time point:", name_of_the_data))
+
+    # Find differentially expressed genes
+    de_genes <- cluster_markers %>% filter(gene %in% genes_of_interest)
+    print(de_genes)
+
+    # Save the DE genes
+    print(paste("Saving differentially expressed genes for time point", name_of_the_data, "in", name_new_dir))
+    write.csv(de_genes, file = paste(name_new_dir_results, "/de_genes_", name_of_the_data, ".csv", sep = ""))
+
+    return(de_genes)
+}
 
 
 # RELOAD DATA____________________________________________________________________________________________________________
@@ -99,21 +118,5 @@ load.clusters <- function(name_of_the_data) {
 load.markers <- function(name_of_the_data) {
     load(paste(name_new_dir_partial, "/cluster_markers_", name_of_the_data, ".Robj", sep = ""))
     return(cluster_markers)
-}
-
-
-# FIND DIFFERENTIALLY EXPRESSED GENES____________________________________________________________________________________________________________
-de.genes <- function(genes_oi) {
-    print(paste("Finding differentially expressed genes for time point:", name_of_the_data))
-
-    # Find differentially expressed genes
-    de_genes <- cluster_markers %>% filter(gene %in% genes_of_interest)
-    print(de_genes)
-
-    # Save the DE genes
-    print(paste("Saving differentially expressed genes for time point", name_of_the_data, "in", name_new_dir))
-    write.csv(de_genes, file = paste(name_new_dir_results, "/de_genes_", name_of_the_data, ".csv", sep = ""))
-
-    return(de_genes)
 }
 
