@@ -7,17 +7,11 @@ library(dplyr)
 library(presto)
 library(cowplot)
 
-# Cell annotation
-library(enrichR)
-library(GPTCelltype)
-library(openai)
-
 
 # SET UP NAMES
-timepoints <- c("23days", "1month", "1.5month", "2month", "3month", "4month", "5month", "6month")
-housekeeping_genes <- c("ACTB", "DLG4")
-genes_of_interest <- c("SRCIN1", "KIAA1217", "CIT")
-path_to_data <- "/sharedFolder/data_organoidi_velasco/Data/"
+housekeeping_genes <- c("")
+genes_of_interest <- c("")
+path_to_data <- "/sharedFolder/Data/"
 
 name_new_dir_results <- paste(getwd(), "/Results", sep = "")
 if (!dir.exists(name_new_dir_results)) {
@@ -31,31 +25,46 @@ if (!dir.exists(name_new_dir_partial)) {
 
 
 # LOAD DATA, NORMALIZE, FIND VARIABLE FEATURES, SCALE DATA
-load.data <- function(time_point) {
-    print(paste("Loading data for time point:", timepoints[time_point]))
-
+load.data <- function(name_of_the_data) {
     # Load the data
-    sc_data <- Read10X(data.dir = paste(path_to_data, "expression_", timepoints[time_point], sep = ""), gene.column = 1)
+    sc_data <- Read10X(data.dir = paste(path_to_data, #    paste() is the command to unite two strings
+                                        name_of_the_data, 
+                                        sep = ""), #       This specifies which caracter to put between the strings, with "" it puts nothing, by default it ads a space. paste0() is a paste() but with sep = "" as default
+                       gene.column = 1) #    Some dataset have double names for the genes, both the Gene cards symbol (ex.  SRCIN1) and the Ensembl code (ex. ENSG00000277363). With gene.column you select wich one to use, in this case i used gene card 
 
     # Create Seurat object
-    sc_data <- CreateSeuratObject(counts = sc_data, min.cells = 3, min.features = 500, project = timepoints[time_point], names.delim = "-", names.field = 2)
+    sc_data <- CreateSeuratObject(counts = sc_data, 
+                                  min.cells = 3, 
+                                  min.features = 500, 
+                                  project = timepoints[time_point], 
+                                  names.delim = "-", 
+                                  names.field = 2)
 
     # Normalize the data
-    sc_data <- NormalizeData(sc_data, normalization.method = "LogNormalize", scale.factor = 1e6)
+    sc_data <- NormalizeData(sc_data, 
+                             normalization.method = "LogNormalize", 
+                             scale.factor = 1e6)
 
     # Find variable features
-    sc_data <- FindVariableFeatures(sc_data, selection.method = "mvp", nfeatures = 2000)
+    sc_data <- FindVariableFeatures(sc_data, 
+                                    selection.method = "mvp", 
+                                    nfeatures = 2000)
 
     # Scale the data
     sc_data <- ScaleData(sc_data)
 
     # Save the Scaled data
-    name_new_dir <- paste(name_new_dir_partial, "/", timepoints[time_point], sep = "")
+    name_new_dir <- paste(name_new_dir_partial, "/", name_of_the_data, sep = "")
     if (!dir.exists(name_new_dir)) {
         dir.create(name_new_dir)
     }
-    print(paste("Saving PCA for time point", timepoints[time_point], "in", name_new_dir))
-    save(sc_data, file = paste(name_new_dir, "/Scaled_", timepoints[time_point], ".Robj", sep = ""))
+    print(paste("Saving PCA for time point", name_of_the_data, "in", name_new_dir))
+    save(sc_data, 
+         file = paste(name_new_dir, 
+                      "/Scaled_", 
+                      name_of_the_data, 
+                      ".Robj", 
+                      sep = ""))
 
     return(sc_data)
 }
