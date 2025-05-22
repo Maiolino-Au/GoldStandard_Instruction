@@ -68,7 +68,7 @@ print(table(Idents(sc_data)))
 
 # Save the PCA plot
 print(paste("Saving PCA for time point", name_of_the_data, "in", name_new_dir))
-save(sc_data, file = paste(name_new_dir_partial, "/PCA_res_", res, "_", name_of_the_data, ".Robj", sep = ""))
+save(sc_data, file = paste(name_new_dir_partial, "/PCA_res_", name_of_the_data, ".Robj", sep = ""))
 
 
 # FIND ALL MARKERS____________________________________________________________________________________________________________
@@ -86,17 +86,17 @@ save(cluster_markers, file = paste(name_new_dir_partial, "/cluster_markers_", na
 
 
 # RELOAD DATA____________________________________________________________________________________________________________
-load.sc_data <- function(time_point) {
+load.sc_data <- function(name_of_the_data) {
     load(paste(name_new_dir_partial, "/cluster_markers_", name_of_the_data, ".Robj", sep = ""))
     return(sc_data)
 }
 
-load.clusters <- function(time_point, res) {
-    load(paste(name_new_dir_partial, "/PCA_res_", res, "_", name_of_the_data, ".Robj", sep = ""))
+load.clusters <- function(name_of_the_data) {
+    load(paste(name_new_dir_partial, "/PCA_res_", name_of_the_data, ".Robj", sep = ""))
     return(sc_data)
 }
 
-load.markers <- function(time_point) {
+load.markers <- function(name_of_the_data) {
     load(paste(name_new_dir_partial, "/cluster_markers_", name_of_the_data, ".Robj", sep = ""))
     return(cluster_markers)
 }
