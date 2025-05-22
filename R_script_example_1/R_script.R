@@ -87,7 +87,7 @@ save(cluster_markers, file = paste(name_new_dir_partial, "/cluster_markers_", na
 
 # RELOAD DATA____________________________________________________________________________________________________________
 load.sc_data <- function(name_of_the_data) {
-    load(paste(name_new_dir_partial, "/cluster_markers_", name_of_the_data, ".Robj", sep = ""))
+    load(paste(name_new_dir_partial, "/Scaled_", name_of_the_data, ".Robj", sep = ""))
     return(sc_data)
 }
 
